@@ -3,10 +3,13 @@
 {% block title %}{% trans "Nagios" %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("Nagios") %}
+    {% include "horizon/common/_page_header.html" with title=_("Nagios") %}
 {% endblock page_header %}
 
 {% block main %}
+<div class="row">
+    <div class="col-sm-12">
+        {{ tab_group.render }}
+    </div>
+</div>
 {% endblock %}
-
-

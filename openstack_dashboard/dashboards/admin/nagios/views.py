@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from horizon import views
+from horizon import tabs
 
+from openstack_dashboard.dashboards.admin.nagios \
+        import tabs as nagios_tabs
 
-class IndexView(views.APIView):
-    # A very simple class-based view...
+class IndexView(tabs.TabbedTableView):
+    tab_group_class = nagios_tabs.NagiosTabs
     template_name = 'admin/nagios/index.html'
 
     def get_data(self, request, context, *args, **kwargs):
