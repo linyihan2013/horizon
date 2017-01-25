@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from django.utils.translation import ugettext_lazy as _
+
 from horizon import tabs
 
 from openstack_dashboard.dashboards.admin.nagios \
@@ -18,6 +20,7 @@ from openstack_dashboard.dashboards.admin.nagios \
 class IndexView(tabs.TabbedTableView):
     tab_group_class = nagios_tabs.NagiosTabs
     template_name = 'admin/nagios/index.html'
+    page_title = _("Nagios")
 
     def get_data(self, request, context, *args, **kwargs):
         # Add data to the context here...
