@@ -16,7 +16,7 @@ opener = urllib2.build_opener(handler)
 urllib2.install_opener(opener)
 
 
-def get_nagios_hostlist():
+def get_nagios_host_list():
     path = "/cgi-bin/statusjson.cgi?query=hostlist"
     request = urllib2.Request(url + path)
 
@@ -30,14 +30,14 @@ def get_nagios_hostlist():
     values = json.loads(content)
 
     # get host list
-    hostlist = []
+    host_list = []
     if "data" in values:
         if "hostlist" in values["data"]:
             for host in values["data"]["hostlist"]:
-                hostlist.append(host)
-    hostlist.sort()
+                host_list.append(host)
+    host_list.sort()
 
-    return hostlist
+    return host_list
 
 
 def get_nagios_host_data(values):
@@ -91,10 +91,10 @@ def get_nagios_host_data(values):
 def get_nagios_hosts():
     path = "/cgi-bin/statusjson.cgi?query=host&hostname=%s"
     
-    hostlist = get_nagios_hostlist()
+    host_list = get_nagios_host_list()
     hosts = []
 
-    for host in hostlist:
+    for host in host_list:
         request = urllib2.Request(url + (path % host))
 
         # get HTTP response
@@ -108,3 +108,84 @@ def get_nagios_hosts():
         hosts.append(get_nagios_host_data(values))
 
     return hosts
+
+
+def get_nagios_service_list():
+    path = "/cgi-bin/statusjson.cgi?query=servicelist"
+    request = urllib2.Request(url + path)
+
+    # get HTTP response
+    try:
+        response = urllib2.urlopen(request)
+    except urllib2.URLError, e:
+        print e.reason
+
+    content = response.read().decode()
+    values = json.loads(content)
+
+    # get service list
+    service_list = []
+    if "data" in values:
+        if "servicelist" in values["data"]:
+            for host in values["data"]["servicelist"]:
+                for service in values["data"]["servicelist"][host]:
+                    service_list.append((host, service))
+    service_list.sort()
+
+    return service_list
+
+
+def get_nagios_service_data(values):
+    data = {}
+
+    # parse service data
+    if "result" in values and "data" in values:
+        if "query_time" in values["result"] and "service" in values["data"] and "last_state_change" in values["data"]["service"]:
+            query_time = values["result"]["query_time"]
+            last_state_change = values["data"]["service"]["last_state_change"]
+            duration = (query_time - last_state_change) / 1000
+            
+            seconds = duration % 60
+            duration /= 60
+
+            minutes = duration % 60
+            duration /= 60
+
+            hours = duration % 24
+            days = duration / 24
+
+            data["duration"] = "%sd %sh %sm %ss" % (days, hours, minutes, seconds)
+
+    if "data" in values:
+        if "service" in values["data"]:
+            values = values["data"]["service"]
+
+    if "host_name" in values:
+        data["hostname"] = values["host_name"]
+
+    if "description" in values:
+        data["service"] = values["description"]
+
+    if "status" in values:
+        if values["status"] == 1:
+            data["status"] = "PENDING"
+        elif values["status"] == 2:
+            data["status"] = "OK"
+        elif values["status"] == 4:
+            data["status"] = "WARNING"
+        elif values["status"] == 8:
+            data["status"] = "UNKNOWN"
+        elif values["status"] == 16:
+            values["status"] = "CRITICAL"
+
+    if "last_check" in values:
+        last_check = datetime.datetime.fromtimestamp(values["last_check"] / 1000)
+        data["last_check"] = last_check.strftime("%m-%d-%Y %H:%M:%S")
+
+    if "plugin_output" in values:
+        data["status_info"] = values["plugin_output"]
+
+    return data
+
+
+print get_nagios_service_list()

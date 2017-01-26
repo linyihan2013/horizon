@@ -2,7 +2,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import exceptions
 from horizon import tabs
-from horizon.utils import functions as utils
 
 from openstack_dashboard.dashboards.admin.nagios import tables
 
@@ -19,9 +18,9 @@ class NagiosHostTab(tabs.TableTab):
 
         try:
             hosts = api.get_nagios_hosts()
-            hosts.sort(key=utils.natural_sort('hostname'))
+            hosts.sort(key=lambda x : x["hostname"])
         except Exception:
-            exceptions.handle(self.request, _("haha"))
+            exceptions.handle(self.request, _("Unable to get nagios host data"))
 
         return hosts
 
