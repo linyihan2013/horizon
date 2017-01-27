@@ -18,7 +18,6 @@ class NagiosHostTab(tabs.TableTab):
 
         try:
             hosts = api.get_nagios_hosts()
-            hosts.sort(key=lambda x : x["hostname"])
         except Exception:
             exceptions.handle(self.request, _("Unable to get nagios host data"))
 
@@ -33,6 +32,12 @@ class NagiosServiceTab(tabs.TableTab):
 
     def get_services_data(self):
         services = []
+
+        try:
+            services = api.get_nagios_services()
+        except Exception:
+            exceptions.handle(self.request, _("Unable to get nagios service data"))
+
         return services
 
 

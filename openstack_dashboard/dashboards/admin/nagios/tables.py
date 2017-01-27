@@ -50,7 +50,7 @@ class NagiosServicesTable(tables.DataTable):
                                 verbose_name=_("Status Information"))
 
     def get_object_id(self, obj):
-        return "%s" % obj["hostname"]
+        return "%s+%s" % (obj["hostname"], obj["service"])
 
     class Meta(object):
         name = "services"

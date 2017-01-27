@@ -185,7 +185,29 @@ def get_nagios_service_data(values):
     if "plugin_output" in values:
         data["status_info"] = values["plugin_output"]
 
+    if "current_attempt" in values and "max_attemps" in values:
+        data["attempt"] = str(values["current_attempt"]) + "/" + str(values["max_attemps"])
+
     return data
 
 
-print get_nagios_service_list()
+def get_nagios_services():
+    path = "/cgi-bin/statusjson.cgi?query=service&hostname=%s&servicedescription=%s"
+    
+    service_list = get_nagios_service_list()
+    services = []
+
+    for host, service in service_list:
+        request = urllib2.Request(url + (path % (host, service.replace(' ', '+'))))
+
+        # get HTTP response
+        try:
+            response = urllib2.urlopen(request)
+        except urllib2.URLError, e:
+            print e.reason
+
+        content = response.read().decode()
+        values = json.loads(content)
+        services.append(get_nagios_service_data(values))
+
+    return services
