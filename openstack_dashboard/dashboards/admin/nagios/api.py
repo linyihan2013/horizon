@@ -5,11 +5,11 @@ import datetime
 # settings
 username = "nagiosadmin"
 password = "niot_dbc_001*"
-url = "http://127.0.0.1/nagios"
+nagios_url = "http://127.0.0.1/nagios"
 
 # install auth opener
 password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-password_mgr.add_password(None, url, username, password)
+password_mgr.add_password(None, nagios_url, username, password)
 
 handler = urllib2.HTTPBasicAuthHandler(password_mgr)
 opener = urllib2.build_opener(handler)
@@ -18,7 +18,7 @@ urllib2.install_opener(opener)
 
 def get_nagios_host_list():
     path = "/cgi-bin/statusjson.cgi?query=hostlist"
-    request = urllib2.Request(url + path)
+    request = urllib2.Request(nagios_url + path)
 
     # get HTTP response
     try:
@@ -95,7 +95,7 @@ def get_nagios_hosts():
     hosts = []
 
     for host in host_list:
-        request = urllib2.Request(url + (path % host))
+        request = urllib2.Request(nagios_url + (path % host))
 
         # get HTTP response
         try:
@@ -112,7 +112,7 @@ def get_nagios_hosts():
 
 def get_nagios_service_list():
     path = "/cgi-bin/statusjson.cgi?query=servicelist"
-    request = urllib2.Request(url + path)
+    request = urllib2.Request(nagios_url + path)
 
     # get HTTP response
     try:
@@ -198,7 +198,7 @@ def get_nagios_services():
     services = []
 
     for host, service in service_list:
-        request = urllib2.Request(url + (path % (host, service.replace(' ', '+'))))
+        request = urllib2.Request(nagios_url + (path % (host, service.replace(' ', '+'))))
 
         # get HTTP response
         try:
@@ -211,3 +211,5 @@ def get_nagios_services():
         services.append(get_nagios_service_data(values))
 
     return services
+
+

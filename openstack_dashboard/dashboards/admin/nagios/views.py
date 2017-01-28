@@ -11,11 +11,13 @@
 # under the License.
 
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic.base import RedirectView
 
 from horizon import tabs
 
 from openstack_dashboard.dashboards.admin.nagios \
         import tabs as nagios_tabs
+
 
 class IndexView(tabs.TabbedTableView):
     tab_group_class = nagios_tabs.NagiosTabs
@@ -25,3 +27,23 @@ class IndexView(tabs.TabbedTableView):
     def get_data(self, request, context, *args, **kwargs):
         # Add data to the context here...
         return context
+
+
+class PNP4NagiosHostView(RedirectView):
+    url = "/pnp4nagios/graph"
+
+    def get_redirect_url(self, *args, **kwargs):
+        self.url = self.url + "?host=%s" % kwargs["host"]
+        
+        return super(PNP4NagiosHostView, self).get_redirect_url(*args, **kwargs)
+
+
+class PNP4NagiosServiceView(RedirectView):
+    url = "/pnp4nagios/graph"
+
+    def get_redirect_url(self, *args, **kwargs):
+        host, service = kwargs["host_service"].split("+")
+        self.url = self.url + "?host=%s" % host + "&srv=%s" % service
+        
+        return super(PNP4NagiosServiceView, self).get_redirect_url(*args, **kwargs)
+

@@ -2,6 +2,23 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import tables
 
+class PNP4NagiosHostLink(tables.LinkAction):
+    name = "pnp4nagios_host"
+    verbose_name = _("PNP4Nagios")
+    url = "horizon:admin:nagios:pnp4nagios_host"
+    
+    def allow(self, request, instance=None):
+        return True
+
+
+class PNP4NagiosServiceLink(tables.LinkAction):
+    name = "pnp4nagios_service"
+    verbose_name = _("PNP4Nagios")
+    url = "horizon:admin:nagios:pnp4nagios_service"
+    
+    def allow(self, request, instance=None):
+        return True
+
 
 class NagiosHostsTable(tables.DataTable):
     hostname = tables.Column("hostname",
@@ -25,6 +42,7 @@ class NagiosHostsTable(tables.DataTable):
     class Meta(object):
         name = "hosts"
         verbose_name = _("Hosts")
+        row_actions = (PNP4NagiosHostLink,)
 
 
 class NagiosServicesTable(tables.DataTable):
@@ -55,3 +73,4 @@ class NagiosServicesTable(tables.DataTable):
     class Meta(object):
         name = "services"
         verbose_name = _("Services")
+        row_actions = (PNP4NagiosServiceLink,)
