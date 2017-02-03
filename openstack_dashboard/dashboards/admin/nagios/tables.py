@@ -5,7 +5,7 @@ from horizon import tables
 class PNP4NagiosHostLink(tables.LinkAction):
     name = "pnp4nagios_host"
     verbose_name = _("PNP4Nagios")
-    url = "horizon:admin:nagios:pnp4nagios_host"
+    url = "horizon:admin:nagios:host"
     
     def allow(self, request, instance=None):
         return True
@@ -14,15 +14,16 @@ class PNP4NagiosHostLink(tables.LinkAction):
 class PNP4NagiosServiceLink(tables.LinkAction):
     name = "pnp4nagios_service"
     verbose_name = _("PNP4Nagios")
-    url = "horizon:admin:nagios:pnp4nagios_service"
+    url = "horizon:admin:nagios:service"
     
     def allow(self, request, instance=None):
         return True
 
 
 class NagiosHostsTable(tables.DataTable):
-    hostname = tables.Column("hostname",
-                                    verbose_name=_("Hostname"))
+    hostname = tables.WrappingColumn("hostname",
+                                     link="horizon:admin:nagios:detail",
+                                     verbose_name=_("Hostname"))
 
     status = tables.Column("status",
                                     verbose_name=_("Status"))

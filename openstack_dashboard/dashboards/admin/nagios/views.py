@@ -13,10 +13,16 @@
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import RedirectView
 
+from horizon import exceptions
 from horizon import tabs
+from horizon import tables
 
 from openstack_dashboard.dashboards.admin.nagios \
         import tabs as nagios_tabs
+from openstack_dashboard.dashboards.admin.nagios \
+        import tables as nagios_tables
+from openstack_dashboard.dashboards.admin.nagios \
+        import api as nagios_api
 
 
 class IndexView(tabs.TabbedTableView):
@@ -47,3 +53,26 @@ class PNP4NagiosServiceView(RedirectView):
         
         return super(PNP4NagiosServiceView, self).get_redirect_url(*args, **kwargs)
 
+
+class HostDetailView(tables.DataTableView):
+    table_class = nagios_tables.NagiosServicesTable
+    template_name = 'admin/nagios/detail.html'
+    page_title = _("Services")
+
+    def get_data(self):
+        services = []
+
+        try:
+            host_name = self.kwargs['host']
+            services = nagios_api.get_nagios_services_by_host(host_name)
+        except Exception:
+            exceptions.handle(self.request, _("Unable to get nagios service data"))
+
+        return services
+
+    def get_context_data(self, **kwargs):
+        context = super(HostDetailView, self).get_context_data(**kwargs)
+        host_name = self.kwargs['host']
+        breadcrumb = [(host_name, None)]
+        context['custom_breadcrumb'] = breadcrumb
+        return context

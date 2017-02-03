@@ -17,6 +17,7 @@ from openstack_dashboard.dashboards.admin.nagios import views
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'^(?P<host>[^/]+)/pnp4nagios_host$', views.PNP4NagiosHostView.as_view(), name='pnp4nagios_host'),
-    url(r'^(?P<host_service>[^/]+)/pnp4nagios_service$', views.PNP4NagiosServiceView.as_view(), name='pnp4nagios_service'),
+    url(r'^(?P<host>[^/]+)/host$', views.PNP4NagiosHostView.as_view(), name='host'),
+    url(r'^(?P<host_service>.+)/service$', views.PNP4NagiosServiceView.as_view(), name='service'),
+    url(r'^(?P<host>[^/]+)/detail$', views.HostDetailView.as_view(), name='detail'),
 ]

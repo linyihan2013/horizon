@@ -213,3 +213,49 @@ def get_nagios_services():
     return services
 
 
+def get_nagios_service_list_by_host(host):
+    path = "/cgi-bin/statusjson.cgi?query=servicelist"
+    request = urllib2.Request(nagios_url + path)
+
+    # get HTTP response
+    try:
+        response = urllib2.urlopen(request)
+    except urllib2.URLError, e:
+        print e.reason
+
+    content = response.read().decode()
+    values = json.loads(content)
+
+    # get service list
+    service_list = []
+    if "data" in values:
+        if "servicelist" in values["data"]:
+            if host in values["data"]["servicelist"]:
+                for service in values["data"]["servicelist"][host]:
+                    service_list.append((host, service))
+    service_list.sort()
+
+    return service_list
+
+
+def get_nagios_services_by_host(host):
+    path = "/cgi-bin/statusjson.cgi?query=service&hostname=%s&servicedescription=%s"
+    
+    service_list = get_nagios_service_list_by_host(host)
+    services = []
+
+    for host, service in service_list:
+        request = urllib2.Request(nagios_url + (path % (host, service.replace(' ', '+'))))
+
+        # get HTTP response
+        try:
+            response = urllib2.urlopen(request)
+        except urllib2.URLError, e:
+            print e.reason
+
+        content = response.read().decode()
+        values = json.loads(content)
+        services.append(get_nagios_service_data(values))
+
+    return services
+
